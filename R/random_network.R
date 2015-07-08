@@ -9,7 +9,7 @@
 #                       'barabasi'  for Barabasi-Albert model 
 #                       'watts'     for Watts-Strogatz model
 #
-# For each network type, additional parametter are required:
+# For each network type, additional parameter are required:
 # Erdos-Renyi:
 #     prob  :  probability of link between two nodes (default 0.2)
 #
@@ -28,8 +28,12 @@
 library(SDDE)
 
 random_network<-function(nb_node=25, nb_color=2,  type='erdos', prob=0.2, nei=1) {
-	ccolor=c(1:nb_color);
-	set.seed(sample(1:10000000));
+	ccolor=c(1:nb_color);	
+	xcolor=array(0, nb_node);	
+	set.seed(sample(1:10000000,1));
+	for (i in 1:nb_node) {		
+		xcolor[i]=sample(ccolor,1);
+	}	
 	if (type=='erdos') {		
 		g1 <- erdos.renyi.game(nb_node,prob,type="gnp", directed=FALSE);
 		g2 <- erdos.renyi.game(nb_node,prob,type="gnp", directed=FALSE);				
@@ -42,9 +46,17 @@ random_network<-function(nb_node=25, nb_color=2,  type='erdos', prob=0.2, nei=1)
 	}
 	V(g1)$name<-paste("x",c(1:nb_node),sep="");
 	V(g2)$name<-paste("x",c(1:nb_node),sep="");
-	V(g1)$color <- ccolor;	
+	V(g1)$color <- xcolor;	
 	V(g2)$color <- V(g1)$color; 
 	return (list("g1"=g1,"g2"=g2));
 }
+
+## Test
+##
+## r=random_network(25,type="erdos");
+## r=random_network(25,type="barabasi");
+## r=random_network(25,type="watts");
+## plot(r$g1)
+## plot(r$g2)
 
 
