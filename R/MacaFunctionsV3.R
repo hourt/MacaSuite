@@ -522,27 +522,32 @@ mm_vecteur<-function(v1,v2){
 	return(res)
 }
 
-get_motifs4_2colors<-function(g1, conjuntos){
+get_motifs4_2colors<-function(g1, kcombination_res){
 		motifs_topologie=rep(0,11)
 		motifs=list(n8=0,n9=c(rep(0,9)),n10=c(rep(0,12)),n11=c(rep(0,6)),n12=c(rep(0,8)),n13=c(rep(0,8)),n14=c(rep(0,10)),n15=c(rep(0,12)),n16=c(rep(0,6)),n17=c(rep(0,9)),n18=c(rep(0,5)))
-		for (i in 1:length(conjuntos)){
-			#for k(in 1:length(conjuntos[[i]])){
-				#vposition[k]=which(V(g1)==conjuntos[[i]][k])
-			#}
-			vposition<-(as.vector(conjuntos[[i]])) #chercher la position des noeuds dans la liste de vertices
-			cmotif<-V(g1)[vposition]$color #chercher la couleur des noeuds
-			gmotif=induced.subgraph(g1, conjuntos[[i]])
+		for (i in 1:length(kcombination_res)){
+			#vposition<-(as.vector(conjuntos[[i]])) #chercher la position des noeuds dans la liste de vertices
+			names(kcombination_res[[i]])=kcombination_res[[i]]
+			cmotif<-V(g1)[names(kcombination_res[[i]])]$color #chercher la couleur des noeuds
+			names(cmotif)=names(kcombination_res[[i]])
+			
+			position=as.vector(V(g1)[names(kcombination_res[[i]])]);
+
+			gmotif=induced.subgraph(g1, position)
 			lmotif=degree(gmotif) #chercher le nb de liens des noeuds faisant partie du motif
 			no_color=FALSE
 			
 			if(is.null(cmotif)){
 				no_color=TRUE
 			}
+			else{
+				col1=sort(levels(as.factor(V(g1)$color)))[1]
+				col2=sort(levels(as.factor(V(g1)$color)))[2]
+			}
 			
 			for (j in 1:11){
 				if(graph.isomorphic(gmotif,graph.atlas(7+j)) == TRUE){
 					motifs_topologie[j]= motifs_topologie[j]+1
-					#print(7+j)
 					if(no_color==FALSE){
 						if((7+j) == 8){
 							motifs[[j]]=motifs[[j]]+1
@@ -551,7 +556,7 @@ get_motifs4_2colors<-function(g1, conjuntos){
 							noeuds_liens<-get.edges(gmotif, E(gmotif)) 
 							# tous les noeuds sont de 1 couleur
 							if(length(levels(as.factor(cmotif)))==1){ 
-								if(levels(as.factor(cmotif)) == levels(as.factor(V(g1)$color))[1]){
+								if(levels(as.factor(cmotif)) == col1){
 									motifs[[j]][1]=motifs[[j]][1]+1
 								}
 								else{
@@ -560,7 +565,7 @@ get_motifs4_2colors<-function(g1, conjuntos){
 							}
 							else{ 
 								# 3 noeuds de couleur 1 et 1 noeud de couleur 2
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[1],3),levels(as.factor(V(g1)$color))[2]))==TRUE){
+								if(mm_vecteur(cmotif,c(rep(col1,3),col2))==TRUE){
 									if(V(gmotif)[noeuds_liens[1,1]]$color == V(gmotif)[noeuds_liens[1,2]]$color){
 										motifs[[j]][3]=motifs[[j]][3]+1
 									}
@@ -569,7 +574,7 @@ get_motifs4_2colors<-function(g1, conjuntos){
 									}
 								}
 								# 1 noeud de couleur 1 et 3 noeuds de couleur 2
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[2],3),levels(as.factor(V(g1)$color))[1]))==TRUE){
+								if(mm_vecteur(cmotif,c(rep(col2,3),col1))==TRUE){
 									if(V(gmotif)[noeuds_liens[1,1]]$color == V(gmotif)[noeuds_liens[1,2]]$color){
 										motifs[[j]][5]=motifs[[j]][5]+1
 									}
@@ -578,12 +583,12 @@ get_motifs4_2colors<-function(g1, conjuntos){
 									}
 								}
 								# 2 noeuds de chaque couleur
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[2],2),rep(levels(as.factor(V(g1)$color))[1],2)))==TRUE){
+								if(mm_vecteur(cmotif,c(rep(col2,2),rep(col1,2)))==TRUE){
 									if(V(gmotif)[noeuds_liens[1,1]]$color != V(gmotif)[noeuds_liens[1,2]]$color){
 										motifs[[j]][7]=motifs[[j]][7]+1
 									}
 									else{
-										if(V(gmotif)[noeuds_liens[1,1]]$color == levels(as.factor(V(g1)$color))[1]){
+										if(V(gmotif)[noeuds_liens[1,1]]$color == col1){
 											motifs[[j]][8]=motifs[[j]][8]+1
 										}
 										else{
@@ -597,7 +602,7 @@ get_motifs4_2colors<-function(g1, conjuntos){
 						if((7+j) == 10){
 							# tous les noeuds sont de 1 couleur
 							if(length(levels(as.factor(cmotif)))==1){ 
-								if(levels(as.factor(cmotif)) == levels(as.factor(V(g1)$color))[1]){
+								if(levels(as.factor(cmotif)) == col1){
 									motifs[[j]][1]=motifs[[j]][1]+1
 								}
 								else{
@@ -606,14 +611,14 @@ get_motifs4_2colors<-function(g1, conjuntos){
 							}
 							else{ 
 								# 3 noeuds de couleur 1 et 1 noeud de couleur 2
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[1],3),levels(as.factor(V(g1)$color))[2]))==TRUE){ #changer cmotif par g1
-									couleur_noeud_seul<-cmotif[which(lmotif==0)]
-									noeud_2liens<-cmotif[which(lmotif==2)]
-									if(couleur_noeud_seul==levels(as.factor(V(g1)$color))[2]){
+								if(mm_vecteur(cmotif,c(rep(col1,3),col2))==TRUE){ #changer cmotif par g1
+									couleur_noeud_seul<-cmotif[names(which(lmotif==0))]
+									noeud_2liens<-cmotif[names(which(lmotif==2))]
+									if(couleur_noeud_seul==col2){
 										motifs[[j]][3]=motifs[[j]][3]+1
 									}
 									else{
-										if(noeud_2liens==levels(as.factor(V(g1)$color))[2]){
+										if(noeud_2liens==col2){
 											motifs[[j]][4]=motifs[[j]][4]+1
 										}
 										else{
@@ -622,14 +627,14 @@ get_motifs4_2colors<-function(g1, conjuntos){
 									}
 								}
 								# 1 noeud de couleur 1 et 3 noeuds de couleur 2
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[2],3),levels(as.factor(V(g1)$color))[1]))==TRUE){
-									couleur_noeud_seul<-cmotif[which(lmotif==0)]
-									noeud_2liens<-cmotif[which(lmotif==2)]
-									if(couleur_noeud_seul==levels(as.factor(V(g1)$color))[1]){
+								if(mm_vecteur(cmotif,c(rep(col2,3),col1))==TRUE){
+									couleur_noeud_seul<-cmotif[names(which(lmotif==0))]
+									noeud_2liens<-cmotif[names(which(lmotif==2))]
+									if(couleur_noeud_seul==col1){
 										motifs[[j]][6]=motifs[[j]][6]+1
 									}
 									else{
-										if(noeud_2liens==levels(as.factor(V(g1)$color))[1]){
+										if(noeud_2liens==col1){
 											motifs[[j]][7]=motifs[[j]][7]+1
 										}
 										else{
@@ -638,23 +643,27 @@ get_motifs4_2colors<-function(g1, conjuntos){
 									}
 								}
 								# 2 noeuds de chaque couleur
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[2],2),rep(levels(as.factor(V(g1)$color))[1],2)))==TRUE){
-									couleur_noeud_seul<-cmotif[which(lmotif==0)]
-									noeud_2liens<-cmotif[which(lmotif==2)]
-									if(noeud_2liens==levels(as.factor(V(g1)$color))[1]){
-										if(couleur_noeud_seul==levels(as.factor(V(g1)$color))[2]){
+								if(mm_vecteur(cmotif,c(rep(col2,2),rep(col1,2)))==TRUE){
+									couleur_noeud_seul<-cmotif[names(which(lmotif==0))]
+									noeud_2liens<-cmotif[names(which(lmotif==2))]
+									if(noeud_2liens==col1){
+										if(couleur_noeud_seul==col2){
 											motifs[[j]][9]=motifs[[j]][9]+1
+
 										}
 										else{
 											motifs[[j]][10]=motifs[[j]][10]+1
+
 										}
 									}
 									else{
-										if(couleur_noeud_seul==levels(as.factor(V(g1)$color))[1]){
+										if(couleur_noeud_seul==col1){
 											motifs[[j]][11]=motifs[[j]][11]+1
+
 										}
 										else{
 											motifs[[j]][12]=motifs[[j]][12]+1
+
 										}
 										
 									}
@@ -666,7 +675,7 @@ get_motifs4_2colors<-function(g1, conjuntos){
 							noeuds_liens<-get.edges(gmotif, E(gmotif)) 
 							# tous les noeuds sont de 1 couleur
 							if(length(levels(as.factor(cmotif)))==1){ 
-								if(levels(as.factor(cmotif)) == levels(as.factor(V(g1)$color))[1]){
+								if(levels(as.factor(cmotif)) == col1){
 									motifs[[j]][1]=motifs[[j]][1]+1
 								}
 								else{
@@ -675,15 +684,15 @@ get_motifs4_2colors<-function(g1, conjuntos){
 							}
 							else{ 
 								# 1 noeud de couleur 2 et 3 noeuds de couleur 1
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[1],3),levels(as.factor(V(g1)$color))[2]))==TRUE){
+								if(mm_vecteur(cmotif,c(rep(col1,3),col2))==TRUE){
 										motifs[[j]][3]=motifs[[j]][3]+1
 								}
 								# 1 noeud de couleur 1 et 3 noeuds de couleur 2
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[2],3),levels(as.factor(V(g1)$color))[1]))==TRUE){
+								if(mm_vecteur(cmotif,c(rep(col2,3),col1))==TRUE){
 										motifs[[j]][4]=motifs[[j]][4]+1
 								}
 								# 2 noeuds de chaque couleur
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[2],2),rep(levels(as.factor(V(g1)$color))[1],2)))==TRUE){
+								if(mm_vecteur(cmotif,c(rep(col2,2),rep(col1,2)))==TRUE){
 									if(V(gmotif)[noeuds_liens[1,1]]$color != V(gmotif)[noeuds_liens[1,2]]$color){ #besoin de verifier le 2e edge?
 										motifs[[j]][5]=motifs[[j]][5]+1
 									}
@@ -697,7 +706,7 @@ get_motifs4_2colors<-function(g1, conjuntos){
 						if((7+j) == 12){
 							# tous les noeuds sont de 1 couleur
 							if(length(levels(as.factor(cmotif)))==1){ 
-								if(levels(as.factor(cmotif)) == levels(as.factor(V(g1)$color))[1]){
+								if(levels(as.factor(cmotif)) == col1){
 									motifs[[j]][1]=motifs[[j]][1]+1
 								}
 								else{
@@ -706,9 +715,9 @@ get_motifs4_2colors<-function(g1, conjuntos){
 							}
 							else{ 
 								# 3 noeuds de couleur 1 et 1 noeud de couleur 2
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[1],3),levels(as.factor(V(g1)$color))[2]))==TRUE){ #changer cmotif par g1
-									couleur_noeud_seul<-cmotif[which(lmotif==0)]
-									if(couleur_noeud_seul==levels(as.factor(V(g1)$color))[1]){
+								if(mm_vecteur(cmotif,c(rep(col1,3),col2))==TRUE){ #changer cmotif par g1
+									couleur_noeud_seul<-cmotif[names(which(lmotif==0))]
+									if(couleur_noeud_seul==col1){
 										motifs[[j]][3]=motifs[[j]][3]+1
 									}
 									else{
@@ -716,9 +725,9 @@ get_motifs4_2colors<-function(g1, conjuntos){
 									}
 								}
 								# 1 noeud de couleur 1 et 3 noeuds de couleur 2
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[2],3),levels(as.factor(V(g1)$color))[1]))==TRUE){
-									couleur_noeud_seul<-cmotif[which(lmotif==0)]
-									if(couleur_noeud_seul==levels(as.factor(V(g1)$color))[2]){
+								if(mm_vecteur(cmotif,c(rep(col2,3),col1))==TRUE){
+									couleur_noeud_seul<-cmotif[names(which(lmotif==0))]
+									if(couleur_noeud_seul==col2){
 										motifs[[j]][5]=motifs[[j]][5]+1
 									}
 									else{
@@ -726,9 +735,9 @@ get_motifs4_2colors<-function(g1, conjuntos){
 									}
 								}
 								# 2 noeuds de chaque couleur
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[2],2),rep(levels(as.factor(V(g1)$color))[1],2)))==TRUE){
-									couleur_noeud_seul<-cmotif[which(lmotif==0)]
-									if(couleur_noeud_seul==levels(as.factor(V(g1)$color))[1]){
+								if(mm_vecteur(cmotif,c(rep(col2,2),rep(col1,2)))==TRUE){
+									couleur_noeud_seul<-cmotif[names(which(lmotif==0))]
+									if(couleur_noeud_seul==col1){
 										motifs[[j]][7]=motifs[[j]][7]+1
 									}
 									else{
@@ -740,7 +749,7 @@ get_motifs4_2colors<-function(g1, conjuntos){
 						if((7+j) == 13){
 							# tous les noeuds sont de 1 couleur
 							if(length(levels(as.factor(cmotif)))==1){ 
-								if(levels(as.factor(cmotif)) == levels(as.factor(V(g1)$color))[1]){
+								if(levels(as.factor(cmotif)) == col1){
 									motifs[[j]][1]=motifs[[j]][1]+1
 								}
 								else{
@@ -749,9 +758,9 @@ get_motifs4_2colors<-function(g1, conjuntos){
 							}
 							else{ 
 								# 3 noeuds de couleur 1 et 1 noeud de couleur 2
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[1],3),levels(as.factor(V(g1)$color))[2]))==TRUE){ #changer cmotif par g1
-									couleur_noeud_central<-cmotif[which(lmotif==3)]
-									if(couleur_noeud_central==levels(as.factor(V(g1)$color))[1]){
+								if(mm_vecteur(cmotif,c(rep(col1,3),col2))==TRUE){ #changer cmotif par g1
+									couleur_noeud_central<-cmotif[names(which(lmotif==3))]
+									if(couleur_noeud_central==col1){
 										motifs[[j]][3]=motifs[[j]][3]+1
 									}
 									else{
@@ -759,9 +768,9 @@ get_motifs4_2colors<-function(g1, conjuntos){
 									}
 								}
 								# 1 noeud de couleur 1 et 3 noeuds de couleur 2
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[2],3),levels(as.factor(V(g1)$color))[1]))==TRUE){
-									couleur_noeud_central<-cmotif[which(lmotif==3)]
-									if(couleur_noeud_central==levels(as.factor(V(g1)$color))[2]){
+								if(mm_vecteur(cmotif,c(rep(col2,3),col1))==TRUE){
+									couleur_noeud_central<-cmotif[names(which(lmotif==3))]
+									if(couleur_noeud_central==col2){
 										motifs[[j]][5]=motifs[[j]][5]+1
 									}
 									else{
@@ -769,9 +778,9 @@ get_motifs4_2colors<-function(g1, conjuntos){
 									}
 								}
 								# 2 noeuds de chaque couleur
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[2],2),rep(levels(as.factor(V(g1)$color))[1],2)))==TRUE){
-									couleur_noeud_central<-cmotif[which(lmotif==3)]
-									if(couleur_noeud_central==levels(as.factor(V(g1)$color))[1]){
+								if(mm_vecteur(cmotif,c(rep(col2,2),rep(col1,2)))==TRUE){
+									couleur_noeud_central<-cmotif[names(which(lmotif==3))]
+									if(couleur_noeud_central==col1){
 										motifs[[j]][7]=motifs[[j]][7]+1
 									}
 									else{
@@ -785,7 +794,7 @@ get_motifs4_2colors<-function(g1, conjuntos){
 							noeuds_liens<-get.edges(gmotif, E(gmotif)) 
 							# tous les noeuds sont de 1 couleur
 							if(length(levels(as.factor(cmotif)))==1){ 
-								if(levels(as.factor(cmotif)) == levels(as.factor(V(g1)$color))[1]){
+								if(levels(as.factor(cmotif)) == col1){
 									motifs[[j]][1]=motifs[[j]][1]+1
 								}
 								else{
@@ -794,9 +803,9 @@ get_motifs4_2colors<-function(g1, conjuntos){
 							}
 							else{ 
 								# 1 noeud de couleur 2 et 3 noeuds de couleur 1
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[1],3),levels(as.factor(V(g1)$color))[2]))==TRUE){
+								if(mm_vecteur(cmotif,c(rep(col1,3),col2))==TRUE){
 									# les couleurs des 2 noeuds ayant 2 liens
-									noeud_2liens<-cmotif[which(lmotif == 2)]
+									noeud_2liens<-cmotif[names(which(lmotif == 2))]
 									if(noeud_2liens[1]==noeud_2liens[2]){
 										motifs[[j]][3]=motifs[[j]][3]+1
 									}
@@ -806,9 +815,9 @@ get_motifs4_2colors<-function(g1, conjuntos){
 										
 								}
 								# 1 noeud de couleur 1 et 3 noeuds de couleur 2
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[2],3),levels(as.factor(V(g1)$color))[1]))==TRUE){
+								if(mm_vecteur(cmotif,c(rep(col2,3),col1))==TRUE){
 									# les couleurs des 2 noeuds ayant 3 liens
-									noeud_2liens<-cmotif[which(lmotif == 2)]
+									noeud_2liens<-cmotif[names(which(lmotif == 2))]
 									if(noeud_2liens[1]==noeud_2liens[2]){
 										motifs[[j]][5]=motifs[[j]][5]+1
 									}
@@ -817,10 +826,10 @@ get_motifs4_2colors<-function(g1, conjuntos){
 									}
 								}
 								# 2 noeuds de chaque couleur
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[2],2),rep(levels(as.factor(V(g1)$color))[1],2)))==TRUE){
-									noeud_2liens<-cmotif[which(lmotif == 2)]
+								if(mm_vecteur(cmotif,c(rep(col2,2),rep(col1,2)))==TRUE){
+									noeud_2liens<-cmotif[names(which(lmotif == 2))]
 									if(noeud_2liens[1]==noeud_2liens[2]){
-										if(noeud_2liens[1]== levels(as.factor(V(g1)$color))[1]){
+										if(noeud_2liens[1]== col1){
 											motifs[[j]][9]=motifs[[j]][8]+1
 										}
 										else{
@@ -852,7 +861,7 @@ get_motifs4_2colors<-function(g1, conjuntos){
 						if((7+j) == 15){
 							# tous les noeuds sont de 1 couleur
 							if(length(levels(as.factor(cmotif)))==1){ 
-								if(levels(as.factor(cmotif)) == levels(as.factor(V(g1)$color))[1]){
+								if(levels(as.factor(cmotif)) == col1){
 									motifs[[j]][1]=motifs[[j]][1]+1
 								}
 								else{
@@ -861,14 +870,14 @@ get_motifs4_2colors<-function(g1, conjuntos){
 							}
 							else{ 
 								# 3 noeuds de couleur 1 et 1 noeud de couleur 2
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[1],3),levels(as.factor(V(g1)$color))[2]))==TRUE){ #changer cmotif par g1
-									central_noeud_color<-cmotif[which(lmotif==3)]
-									noeud_1lien<-cmotif[which(lmotif==1)]
-									if(central_noeud_color==levels(as.factor(V(g1)$color))[2]){
+								if(mm_vecteur(cmotif,c(rep(col1,3),col2))==TRUE){ #changer cmotif par g1
+									central_noeud_color<-cmotif[names(which(lmotif==3))]
+									noeud_1lien<-cmotif[names(which(lmotif==1))]
+									if(central_noeud_color==col2){
 										motifs[[j]][3]=motifs[[j]][3]+1
 									}
 									else{
-										if(noeud_1lien==levels(as.factor(V(g1)$color))[2]){
+										if(noeud_1lien==col2){
 											motifs[[j]][4]=motifs[[j]][4]+1
 										}
 										else{
@@ -877,14 +886,14 @@ get_motifs4_2colors<-function(g1, conjuntos){
 									}
 								}
 								# 1 noeud de couleur 1 et 3 noeuds de couleur 2
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[2],3),levels(as.factor(V(g1)$color))[1]))==TRUE){
-									central_noeud_color<-cmotif[which(lmotif==3)]
-									noeud_1lien<-cmotif[which(lmotif==1)]
-									if(central_noeud_color==levels(as.factor(V(g1)$color))[1]){
+								if(mm_vecteur(cmotif,c(rep(col2,3),col1))==TRUE){
+									central_noeud_color<-cmotif[names(which(lmotif==3))]
+									noeud_1lien<-cmotif[names(which(lmotif==1))]
+									if(central_noeud_color==col1){
 										motifs[[j]][6]=motifs[[j]][6]+1
 									}
 									else{
-										if(noeud_1lien==levels(as.factor(V(g1)$color))[1]){
+										if(noeud_1lien==col1){
 											motifs[[j]][7]=motifs[[j]][7]+1
 										}
 										else{
@@ -893,11 +902,11 @@ get_motifs4_2colors<-function(g1, conjuntos){
 									}
 								}
 								# 2 noeuds de chaque couleur
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[2],2),rep(levels(as.factor(V(g1)$color))[1],2)))==TRUE){
-									central_noeud_color<-cmotif[which(lmotif==3)]
-									noeud_1lien<-cmotif[which(lmotif==1)]
-									if(noeud_1lien==levels(as.factor(V(g1)$color))[1]){
-										if(central_noeud_color==levels(as.factor(V(g1)$color))[2]){
+								if(mm_vecteur(cmotif,c(rep(col2,2),rep(col1,2)))==TRUE){
+									central_noeud_color<-cmotif[names(which(lmotif==3))]
+									noeud_1lien<-cmotif[names(which(lmotif==1))]
+									if(noeud_1lien==col1){
+										if(central_noeud_color==col2){
 											motifs[[j]][9]=motifs[[j]][9]+1
 										}
 										else{
@@ -905,7 +914,7 @@ get_motifs4_2colors<-function(g1, conjuntos){
 										}
 									}
 									else{
-										if(central_noeud_color==levels(as.factor(V(g1)$color))[1]){
+										if(central_noeud_color==col1){
 											motifs[[j]][11]=motifs[[j]][11]+1
 										}
 										else{
@@ -921,7 +930,7 @@ get_motifs4_2colors<-function(g1, conjuntos){
 							noeuds_liens<-get.edges(gmotif, E(gmotif)) 
 							# tous les noeuds sont de 1 couleur
 							if(length(levels(as.factor(cmotif)))==1){ 
-								if(levels(as.factor(cmotif)) == levels(as.factor(V(g1)$color))[1]){
+								if(levels(as.factor(cmotif)) == col1){
 									motifs[[j]][1]=motifs[[j]][1]+1
 								}
 								else{
@@ -930,15 +939,15 @@ get_motifs4_2colors<-function(g1, conjuntos){
 							}
 							else{ 
 								# 3 noeuds de couleur 1 et 1 noeud de couleur 2
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[1],3),levels(as.factor(V(g1)$color))[2]))==TRUE){
+								if(mm_vecteur(cmotif,c(rep(col1,3),col2))==TRUE){
 									motifs[[j]][3]=motifs[[j]][3]+1
 								}
 								# 1 noeud de couleur 1 et 3 noeuds de couleur 2
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[2],3),levels(as.factor(V(g1)$color))[1]))==TRUE){
+								if(mm_vecteur(cmotif,c(rep(col2,3),col1))==TRUE){
 									motifs[[j]][4]=motifs[[j]][4]+1
 								}
 								# 2 noeuds de chaque couleur
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[2],2),rep(levels(as.factor(V(g1)$color))[1],2)))==TRUE){
+								if(mm_vecteur(cmotif,c(rep(col2,2),rep(col1,2)))==TRUE){
 										v1<-noeuds_liens[,1]
 										v2<-noeuds_liens[,2]
 										lien_mm_couleur=FALSE
@@ -961,7 +970,7 @@ get_motifs4_2colors<-function(g1, conjuntos){
 						if((7+j) == 17){
 							# tous les noeuds sont de 1 couleur
 							if(length(levels(as.factor(cmotif)))==1){ 
-								if(levels(as.factor(cmotif)) == levels(as.factor(V(g1)$color))[1]){
+								if(levels(as.factor(cmotif)) == col1){
 									motifs[[j]][1]=motifs[[j]][1]+1
 								}
 								else{
@@ -970,9 +979,9 @@ get_motifs4_2colors<-function(g1, conjuntos){
 							}
 							else{ 
 								# 1 noeud de couleur 2 et 3 noeuds de couleur 1
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[1],3),levels(as.factor(V(g1)$color))[2]))==TRUE){
+								if(mm_vecteur(cmotif,c(rep(col1,3),col2))==TRUE){
 									# les couleurs des 2 noeuds ayant 3 liens
-									noeud_3liens<-cmotif[which(lmotif == 3)]
+									noeud_3liens<-cmotif[names(which(lmotif == 3))]
 									if(noeud_3liens[1]==noeud_3liens[2]){
 										motifs[[j]][3]=motifs[[j]][3]+1
 									}
@@ -982,9 +991,9 @@ get_motifs4_2colors<-function(g1, conjuntos){
 										
 								}
 								# 1 noeud de couleur 1 et 3 noeuds de couleur 2
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[2],3),levels(as.factor(V(g1)$color))[1]))==TRUE){
+								if(mm_vecteur(cmotif,c(rep(col2,3),col1))==TRUE){
 									# les couleurs des 2 noeuds ayant 3 liens
-									noeud_3liens<-cmotif[which(lmotif == 3)]
+									noeud_3liens<-cmotif[names(which(lmotif == 3))]
 									if(noeud_3liens[1]==noeud_3liens[2]){
 										motifs[[j]][5]=motifs[[j]][5]+1
 									}
@@ -993,13 +1002,13 @@ get_motifs4_2colors<-function(g1, conjuntos){
 									}
 								}
 								# 2 noeuds de chaque couleur
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[2],2),rep(levels(as.factor(V(g1)$color))[1],2)))==TRUE){
-									noeud_3liens<-cmotif[which(lmotif == 3)]
+								if(mm_vecteur(cmotif,c(rep(col2,2),rep(col1,2)))==TRUE){
+									noeud_3liens<-cmotif[names(which(lmotif == 3))]
 									if(noeud_3liens[1]!=noeud_3liens[2]){
 										motifs[[j]][7]=motifs[[j]][7]+1
 									}
 									else{
-										if(noeud_3liens[1]== levels(as.factor(V(g1)$color))[1]){
+										if(noeud_3liens[1]== col1){
 											motifs[[j]][8]=motifs[[j]][8]+1
 										}
 										else{
@@ -1013,7 +1022,7 @@ get_motifs4_2colors<-function(g1, conjuntos){
 							noeuds_liens<-get.edges(gmotif, E(gmotif)) 
 							# tous les noeuds sont de 1 couleur
 							if(length(levels(as.factor(cmotif)))==1){ 
-								if(levels(as.factor(cmotif)) == levels(as.factor(V(g1)$color))[1]){
+								if(levels(as.factor(cmotif)) == col1){
 									motifs[[j]][1]=motifs[[j]][1]+1
 								}
 								else{
@@ -1022,15 +1031,15 @@ get_motifs4_2colors<-function(g1, conjuntos){
 							}
 							else{ 
 								# 3 noeuds de couleur 1 et 1 noeud de couleur 2
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[1],3),levels(as.factor(V(g1)$color))[2]))==TRUE){
+								if(mm_vecteur(cmotif,c(rep(col1,3),col2))==TRUE){
 									motifs[[j]][3]=motifs[[j]][3]+1
 								}
 								# 1 noeud de couleur 1 et 3 noeuds de couleur 2
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[2],3),levels(as.factor(V(g1)$color))[1]))==TRUE){
+								if(mm_vecteur(cmotif,c(rep(col2,3),col1))==TRUE){
 									motifs[[j]][4]=motifs[[j]][4]+1
 								}
 								# 2 noeuds de chaque couleur
-								if(mm_vecteur(cmotif,c(rep(levels(as.factor(V(g1)$color))[2],2),rep(levels(as.factor(V(g1)$color))[1],2)))==TRUE){
+								if(mm_vecteur(cmotif,c(rep(col2,2),rep(col1,2)))==TRUE){
 									motifs[[j]][5]=motifs[[j]][5]+1
 
 								}
@@ -1044,4 +1053,6 @@ get_motifs4_2colors<-function(g1, conjuntos){
 		return(list(motif_by_topology=motifs_topologie, motif_by_colors=motifs))
 			
 }
+
+#names(lmotif8[which(as.vector(lmotif8)==0)])
 
