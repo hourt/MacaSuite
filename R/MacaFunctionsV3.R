@@ -398,13 +398,13 @@ calcularIndice<- function(listaSG,FUN)
 # g1 : réseau 1 g2: réseau 2
 # Fonction principale 
 
-generer_indices <- function(g1,g2,k)
+generer_indices <- function(g1,g2,k,m)
 {
 
   #On crée k sous réseaux de 4 noeuds à partir 
   # de noeuds du graphe 1 
   
-  conjuntos <- generarConjuntoDeNodosColor(V(g1),k)
+  conjuntos <- generarConjuntoDeNodosColor(V(g1),k,motif.size)
   
   #On sélectionne les sous-graphes à partir de g1 y g2
   listaSubgrafos1<-list()
@@ -450,7 +450,7 @@ generer_indices <- function(g1,g2,k)
 
 #conjuntos<-generarConjuntoDeNodos(V(test$g2),k,motif.size)
 
-dist_motifs_colores<-function(g1,conjuntos,motif.size)
+dist_motifs_colores<-function(g1,g2,conjuntos,motif.size)
 {
 	if(length(levels(as.factor(V(g1)$color)))==2 && length(levels(as.factor(V(g2)$color)))==2){ # pour 2 couleurs pour l'instant
 		#if(motif.size ==3){
@@ -471,16 +471,22 @@ dist_motifs_colores<-function(g1,conjuntos,motif.size)
 			#motifs=c(rep(0,1016))
 		#}
 		
-		diff_topologie=(motifs_list_g1$motif_by_topology)-(motifs_list_g2$motif_by_topology)
+		diff_topologie=abs((motifs_list_g1$motif_by_topology)-(motifs_list_g2$motif_by_topology))
 		diff_topologie_et_couleur=list()
 		for (i in 1:length(motifs_list_g1$motif_by_colors)){
-			diff_topologie_et_couleur[[i]]=(motifs_list_g1$motif_by_colors[[i]])-(motifs_list_g2$motif_by_colors[[i]])
+			diff_topologie_et_couleur[[i]]=abs((motifs_list_g1$motif_by_colors[[i]])-(motifs_list_g2$motif_by_colors[[i]]))
 		}
+		diff_total_topologie=sum(diff_topologie)
+		diff_total_topo_and_col=list()
+		for (i in 1:length(motifs_list_g1$motif_by_colors)){
+			diff_total_topo_and_col[[i]]=sum(diff_topologie_et_couleur[[i]])
+		}
+		
 	}
 	else{
 		print("more than two colors")
 	}
-	return(list(motifs_topology_difference=diff_topologie, motifs_topology_and_color_difference=diff_topologie_et_couleur))
+	return(list(motifs_topology_difference=diff_topologie, motifs_topology_and_color_difference=diff_topologie_et_couleur,total_difference_in_topology=diff_total_topologie,total_difference_in_topology_and_color=diff_total_topo_and_col))
 }
 
 
@@ -520,7 +526,10 @@ get_motifs4_2colors<-function(g1, conjuntos){
 		motifs_topologie=rep(0,11)
 		motifs=list(n8=0,n9=c(rep(0,9)),n10=c(rep(0,12)),n11=c(rep(0,6)),n12=c(rep(0,8)),n13=c(rep(0,8)),n14=c(rep(0,10)),n15=c(rep(0,12)),n16=c(rep(0,6)),n17=c(rep(0,9)),n18=c(rep(0,5)))
 		for (i in 1:length(conjuntos)){
-			vposition<-as.vector(conjuntos[[i]]) #chercher la position des noeuds dans la liste de vertices
+			#for k(in 1:length(conjuntos[[i]])){
+				#vposition[k]=which(V(g1)==conjuntos[[i]][k])
+			#}
+			vposition<-(as.vector(conjuntos[[i]])) #chercher la position des noeuds dans la liste de vertices
 			cmotif<-V(g1)[vposition]$color #chercher la couleur des noeuds
 			gmotif=induced.subgraph(g1, conjuntos[[i]])
 			lmotif=degree(gmotif) #chercher le nb de liens des noeuds faisant partie du motif
@@ -533,7 +542,7 @@ get_motifs4_2colors<-function(g1, conjuntos){
 			for (j in 1:11){
 				if(graph.isomorphic(gmotif,graph.atlas(7+j)) == TRUE){
 					motifs_topologie[j]= motifs_topologie[j]+1
-					print(7+j)
+					#print(7+j)
 					if(no_color==FALSE){
 						if((7+j) == 8){
 							motifs[[j]]=motifs[[j]]+1
