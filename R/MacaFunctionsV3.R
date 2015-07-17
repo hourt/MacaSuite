@@ -460,6 +460,17 @@ dist_motifs_colores<-function(g1,g2,conjuntos,motif.size)
 			motifs_list_g1<-get_motifs4_2colors(g1,conjuntos)
 			motifs_list_g2<-get_motifs4_2colors(g2,conjuntos)
 			
+			#vecteur9_g1<-motifs_list_g1$motif_by_colors$n9
+			#vecteur10_g1<-motifs_list_g1$motif_by_colors$n10
+			#vecteur11_g1<-motifs_list_g1$motif_by_colors$n11
+			#vecteur12_g1<-motifs_list_g1$motif_by_colors$n12
+			#vecteur13_g1<-motifs_list_g1$motif_by_colors$n13
+			#vecteur14_g1<-motifs_list_g1$motif_by_colors$n14
+			#vecteur15_g1<-motifs_list_g1$motif_by_colors$n15
+			#vecteur16_g1<-motifs_list_g1$motif_by_colors$n16
+			#vecteur17_g1<-motifs_list_g1$motif_by_colors$n17
+			#vecteur18_g1<-motifs_list_g1$motif_by_colors$n18
+			
 		}
 		#if(motif.size ==5){
 			#motifs=c(rep(0,34))
@@ -531,7 +542,7 @@ get_motifs4_2colors<-function(g1, kcombination_res){
 			cmotif<-V(g1)[names(kcombination_res[[i]])]$color #chercher la couleur des noeuds
 			names(cmotif)=names(kcombination_res[[i]])
 			
-			position=as.vector(V(g1)[names(kcombination_res[[i]])]);
+			position=as.vector(V(g1)[names(kcombination_res[[i]])])
 
 			gmotif=induced.subgraph(g1, position)
 			lmotif=degree(gmotif) #chercher le nb de liens des noeuds faisant partie du motif
@@ -1050,7 +1061,87 @@ get_motifs4_2colors<-function(g1, kcombination_res){
 			
 			}
 		}	
-		return(list(motif_by_topology=motifs_topologie, motif_by_colors=motifs))
+			#mettre ensemble les graphes équivalents (proportion de couleur)
+			vecteur9_g1<-vector()
+			vecteur10_g1<-vector()
+			vecteur11_g1<-vector()
+			vecteur12_g1<-vector()
+			vecteur13_g1<-vector()
+			vecteur14_g1<-vector()
+			vecteur15_g1<-vector()
+			vecteur16_g1<-vector()
+			vecteur17_g1<-vector()
+			vecteur18_g1<-vector()
+			
+			vecteur9_g1[1]<-motifs$n9[1]+motifs$n9[2]
+			vecteur9_g1[2]<-motifs$n9[3]+motifs$n9[5]
+			vecteur9_g1[3]<-motifs$n9[4]+motifs$n9[6]
+			vecteur9_g1[4]<-motifs$n9[7]
+			vecteur9_g1[5]<-motifs$n9[8]+motifs$n9[9]
+			
+			vecteur10_g1[1]<-motifs$n10[1]+motifs$n10[2]
+			vecteur10_g1[2]<-motifs$n10[3]+motifs$n10[6]
+			vecteur10_g1[3]<-motifs$n10[4]+motifs$n10[7]
+			vecteur10_g1[4]<-motifs$n10[5]+motifs$n10[8]
+			vecteur10_g1[5]<-motifs$n10[9]+motifs$n10[11]
+			vecteur10_g1[6]<-motifs$n10[10]+motifs$n10[12]
+			
+			vecteur11_g1[1]<-motifs$n11[1]+motifs$n11[2]
+			vecteur11_g1[2]<-motifs$n11[3]+motifs$n11[4]
+			vecteur11_g1[3]<-motifs$n11[5]
+			vecteur11_g1[4]<-motifs$n11[6]
+			
+			vecteur12_g1[1]<-motifs$n12[1]+motifs$n12[2]
+			vecteur12_g1[2]<-motifs$n12[3]+motifs$n12[5]
+			vecteur12_g1[3]<-motifs$n12[4]+motifs$n12[6]
+			vecteur12_g1[4]<-motifs$n12[7]+motifs$n12[8]
+			
+			vecteur13_g1[1]<-motifs$n13[1]+motifs$n13[2]
+			vecteur13_g1[2]<-motifs$n13[3]+motifs$n13[5]
+			vecteur13_g1[3]<-motifs$n13[4]+motifs$n13[6]
+			vecteur13_g1[4]<-motifs$n13[7]+motifs$n13[8]
+
+			vecteur14_g1[1]<-motifs$n14[1]+motifs$n14[2]
+			vecteur14_g1[2]<-motifs$n14[3]+motifs$n14[5]
+			vecteur14_g1[3]<-motifs$n14[4]+motifs$n14[6]
+			vecteur14_g1[4]<-motifs$n14[7]
+			vecteur14_g1[5]<-motifs$n14[8]
+			vecteur14_g1[6]<-motifs$n14[9]+motifs$n14[10]
+			
+			vecteur15_g1[1]<-motifs$n15[1]+motifs$n15[2]
+			vecteur15_g1[2]<-motifs$n15[3]+motifs$n15[6]
+			vecteur15_g1[3]<-motifs$n15[4]+motifs$n15[7]
+			vecteur15_g1[4]<-motifs$n15[5]+motifs$n15[8]
+			vecteur15_g1[5]<-motifs$n15[9]+motifs$n15[11]
+			vecteur15_g1[6]<-motifs$n15[10]+motifs$n15[12]
+			
+			vecteur16_g1[1]<-motifs$n16[1]+motifs$n16[2]
+			vecteur16_g1[2]<-motifs$n16[3]+motifs$n16[4]
+			vecteur16_g1[3]<-motifs$n16[5]
+			vecteur16_g1[4]<-motifs$n16[6]
+
+			vecteur17_g1[1]<-motifs$n17[1]+motifs$n17[2]
+			vecteur17_g1[2]<-motifs$n17[3]+motifs$n17[5]
+			vecteur17_g1[3]<-motifs$n17[4]+motifs$n17[6]
+			vecteur17_g1[4]<-motifs$n17[7]
+			vecteur17_g1[5]<-motifs$n17[8]+motifs$n17[9]
+			
+			vecteur18_g1[1]<-motifs$n18[1]+motifs$n18[2]
+			vecteur18_g1[2]<-motifs$n18[3]+motifs$n18[4]
+			vecteur18_g1[3]<-motifs$n18[5]
+			
+			list.vector<-list(	v9=vecteur9_g1,
+								v10=vecteur10_g1,
+								v11=vecteur11_g1,
+								v12=vecteur12_g1,
+								v13=vecteur13_g1,
+								v14=vecteur14_g1,
+								v15=vecteur15_g1,
+								v16=vecteur16_g1,
+								v17=vecteur17_g1,
+								v18=vecteur18_g1)
+								
+		return(list(motif_by_topology=motifs_topologie, motif_by_colors=list.vector))
 			
 }
 
